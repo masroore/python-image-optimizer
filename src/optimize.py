@@ -223,6 +223,20 @@ def save_webp(image: Image.Image, image_path: Path, config: PipelineConfig) -> P
     return output_path
 
 
+def recreate_resize_image(image: Image.Image, config: Dict[str, Any]) -> Image.Image:
+    target_width = config.get("width")
+    target_height = config.get("height")
+
+    # Create a copy of the image for thumbnail (this also strips EXIF)
+    resized = Image.new(image.mode, image.size)
+    resized.paste(image)
+
+    # Resize the image
+    resized.thumbnail((target_width, target_height), Resampling.LANCZOS)
+
+    return resized
+
+
 def generate_output_path(
     config: Dict[str, Any], file_path: Path, output_dir: Path | None = None
 ) -> Path:
@@ -244,26 +258,16 @@ def create_thumbnail(
     if not thumbnail_config.get("enabled", False):
         return None
 
-    # Get thumbnail dimensions
-    width = thumbnail_config.get("width", 200)
-    height = thumbnail_config.get("height", 200)
+    thumb = recreate_resize_image(image, thumbnail_config)
 
-    # Create a copy of the image for thumbnail (this also strips EXIF)
-    thumb = Image.new(image.mode, image.size)
-    thumb.paste(image)
-    thumb.thumbnail((width, height), Resampling.LANCZOS)
-
-    output_path = generate_output_path(thumbnail_config, image_path)
-
-    # Save as WebP
     thumb.save(
-        output_path,
+        generate_output_path(thumbnail_config, image_path),
         format="WEBP",
         quality=thumbnail_config.get("quality"),
         method=thumbnail_config.get("method"),
     )
 
-    return output_path
+    return generate_output_path(thumbnail_config, image_path)
 
 
 def create_blurred(
@@ -275,14 +279,7 @@ def create_blurred(
     if not blur_config.get("enabled", False):
         return None
 
-    # Get blur dimensions from config
-    target_width = blur_config.get("width", 800)
-    target_height = blur_config.get("height", 600)
-
-    # Create a new image without EXIF data
-    blurred = Image.new(image.mode, image.size)
-    blurred.paste(image)
-    blurred.thumbnail((target_width, target_height), Resampling.LANCZOS)
+    blurred = recreate_resize_image(image, blur_config)
 
     # Apply Gaussian blur
     blur_radius = blur_config.get("radius")
