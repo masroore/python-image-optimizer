@@ -23,11 +23,11 @@ output_dir: "./storage/optimized"
 scaling_enabled: true
 thumbnail:
   enabled: true
-  height: 240
+  height: 160
   quality: 55
   method: 3
   path: "./storage/thumbnails"
-  width: 240
+  width: 160
   suffix: "_tn"
 watermark:
   enabled: true
