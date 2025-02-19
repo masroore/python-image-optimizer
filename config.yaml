@@ -5,11 +5,13 @@ adjustments:
 adjustments_enabled: true
 blur:
   enabled: true
-  height: 600
-  quality: 70
-  radius: 15
+  height: 800
+  quality: 55
+  radius: 5
+  method: 4
   path: "./storage/blurred"
   width: 800
+colormode: RGBA
 input_dir: "./storage/source"
 scaling:
   max_width: 1920
@@ -25,11 +27,11 @@ thumbnail:
   width: 240
 watermark:
   enabled: true
-  opacity: 0.6
+  opacity: 0.75
   padding: 20
   path: "./assets/watermark.png"
-  position: bottom-right
-  resize_percentage: 15
+  position: bottom-left
+  resize_percentage: 25
 webp:
   lossless: false
   method: 6

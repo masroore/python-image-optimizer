@@ -10,6 +10,7 @@ from PIL.Image import Transpose, Resampling
 @dataclass
 class PipelineConfig:
     orientation_enabled: bool
+    colormode: str
     scaling_enabled: bool
     adjustments_enabled: bool
     max_dimensions: Tuple[int, int]
@@ -35,6 +36,7 @@ def load_config(config_path: Path) -> PipelineConfig:
         adjustments=config["adjustments"],
         watermark=config["watermark"],
         webp_settings=config["webp"],
+        colormode=config["colormode"],
         thumbnail=config["thumbnail"],
         blur=config["blur"],
         orientation_enabled=config["orientation_enabled"],
@@ -285,24 +287,10 @@ def create_blurred(
     # Create a new image without EXIF data
     blurred = Image.new(image.mode, image.size)
     blurred.paste(image)
-
-    # Calculate dimensions that preserve aspect ratio within the target dimensions
-    original_width, original_height = blurred.size
-    width_ratio = target_width / original_width
-    height_ratio = target_height / original_height
-
-    # Use the smaller ratio to ensure the image fits within target dimensions
-    resize_ratio = min(width_ratio, height_ratio)
-
-    # Calculate new dimensions
-    new_width = int(original_width * resize_ratio)
-    new_height = int(original_height * resize_ratio)
-
-    # Resize the image with aspect ratio preserved
-    blurred = blurred.resize((new_width, new_height), Resampling.LANCZOS)
+    blurred.thumbnail((target_width, target_height), Resampling.LANCZOS)
 
     # Apply Gaussian blur
-    blur_radius = blur_config.get("radius", 10)
+    blur_radius = blur_config.get("radius")
     blurred = blurred.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
     # Create blur directory if it doesn't exist
@@ -315,10 +303,30 @@ def create_blurred(
 
     # Save as WebP
     blurred.save(
-        output_path, format="WEBP", quality=blur_config.get("quality", 70), method=4
+        output_path,
+        format="WEBP",
+        quality=blur_config.get("quality"),
+        method=blur_config.get("method"),
     )
 
     return output_path
+
+
+def fix_colormode(image: Image.Image, config: PipelineConfig) -> Image.Image:
+    """Convert image to specified color mode."""
+    colormode = config.colormode
+
+    if colormode == "RGB" or colormode == "RGBA":
+        if image.mode == "RGBA":
+            return image
+        if image.mode == "LA":
+            return image.convert("RGBA")
+
+        return image.convert(colormode)
+    elif colormode == "GRAY":
+        return image.convert("L")
+
+    return image.convert(colormode)
 
 
 def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]:
@@ -326,15 +334,17 @@ def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]
     # Convert string paths to Path objects
     image_path = Path(image_path_str)
 
-    # Load image
     image = Image.open(image_path)
 
-    # Additional pipelines
+    # Apply color mode and orientation fixes
+    image = fix_colormode(image, config)
+    image = fix_orientation(image, config)
+
+    # Create thumbnail and blurred versions
     thumbnail_path = create_thumbnail(image, image_path, config)
     blurred_path = create_blurred(image, image_path, config)
 
-    # Main pipeline
-    image = fix_orientation(image, config)
+    # Primary pipeline
     image = scale_image(image, config)
     image = adjust_image(image, config)
     image = add_watermark(image, config)
