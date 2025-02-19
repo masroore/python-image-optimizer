@@ -250,7 +250,7 @@ def create_thumbnail(
 
     # Generate output path
     base_name = image_path.stem
-    output_path = thumbnail_dir / f"{base_name}_thumb.webp"
+    output_path = thumbnail_dir / f"{base_name}{thumbnail_config.get('suffix')}.webp"
 
     # Save as WebP
     thumb.save(
@@ -291,7 +291,7 @@ def create_blurred(
 
     # Generate output path
     base_name = image_path.stem
-    output_path = blur_dir / f"{base_name}_blurred.webp"
+    output_path = blur_dir / f"{base_name}{blur_config.get('suffix')}.webp"
 
     # Save as WebP
     blurred.save(

@@ -11,6 +11,7 @@ blur:
   method: 3
   path: "./storage/blurred"
   width: 800
+  suffix: "_blurred"
 colormode: RGBA
 colormode_enabled: true
 input_dir: "./storage/source"
@@ -27,6 +28,7 @@ thumbnail:
   method: 3
   path: "./storage/thumbnails"
   width: 240
+  suffix: "_tn"
 watermark:
   enabled: true
   opacity: 0.75
