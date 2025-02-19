@@ -20,4 +20,4 @@ if __name__ == "__main__":
         for file in config.input_dir.glob("*"):
             if file.is_file() and file.suffix.lower() in ALLOWED_EXTENSIONS:
                 result = process_image(file, config)
-                print(f"Processed files: {result}")
+                print(f"Processed: {result}")
