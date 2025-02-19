@@ -200,15 +200,8 @@ def add_watermark(image: Image.Image, config: PipelineConfig) -> Image.Image:
 
 def save_webp(image: Image.Image, image_path: Path, config: PipelineConfig) -> Path:
     """Save the image as WebP format with all EXIF data stripped."""
-    webp_settings = config.webp_settings
-    output_dir = config.output_dir
-
-    # Create output directory if it doesn't exist
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Generate output path
-    base_name = image_path.stem
-    output_path = output_dir / f"{base_name}.webp"
+    webp_config = config.webp_settings
+    output_path = generate_output_path(webp_config, image_path, config.output_dir)
 
     # Create a new image without EXIF data
     clean_img = Image.new(image.mode, image.size)
@@ -218,12 +211,24 @@ def save_webp(image: Image.Image, image_path: Path, config: PipelineConfig) -> P
     clean_img.save(
         output_path,
         format="WEBP",
-        quality=webp_settings.get("quality", 80),
-        method=webp_settings.get("method", 4),
-        lossless=webp_settings.get("lossless", False),
+        quality=webp_config.get("quality"),
+        method=webp_config.get("method"),
+        lossless=webp_config.get("lossless"),
     )
 
     return output_path
+
+
+def generate_output_path(
+    config: Dict[str, Any], file_path: Path, output_dir: Path | None = None
+) -> Path:
+    """Create output directory if it doesn't exist and generate output path."""
+    if not output_dir:
+        output_dir = Path(config.get("path"))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    base_name = file_path.stem
+    suffix = config.get("suffix", "")
+    return output_dir / f"{base_name}{suffix}.webp"
 
 
 def create_thumbnail(
@@ -244,13 +249,7 @@ def create_thumbnail(
     thumb.paste(image)
     thumb.thumbnail((width, height), Resampling.LANCZOS)
 
-    # Create thumbnail directory if it doesn't exist
-    thumbnail_dir = Path(thumbnail_config.get("path"))
-    thumbnail_dir.mkdir(parents=True, exist_ok=True)
-
-    # Generate output path
-    base_name = image_path.stem
-    output_path = thumbnail_dir / f"{base_name}{thumbnail_config.get('suffix')}.webp"
+    output_path = generate_output_path(thumbnail_config, image_path)
 
     # Save as WebP
     thumb.save(
@@ -285,13 +284,7 @@ def create_blurred(
     blur_radius = blur_config.get("radius")
     blurred = blurred.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
-    # Create blur directory if it doesn't exist
-    blur_dir = Path(blur_config.get("path"))
-    blur_dir.mkdir(parents=True, exist_ok=True)
-
-    # Generate output path
-    base_name = image_path.stem
-    output_path = blur_dir / f"{base_name}{blur_config.get('suffix')}.webp"
+    output_path = generate_output_path(blur_config, image_path)
 
     # Save as WebP
     blurred.save(
