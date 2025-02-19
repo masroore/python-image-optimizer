@@ -13,6 +13,7 @@ class PipelineConfig:
     colormode: str
     scaling_enabled: bool
     adjustments_enabled: bool
+    colormode_enabled: bool
     scaling: Tuple[int, int]
     adjustments: Dict[str, float]
     watermark: Dict[str, Any]
@@ -41,6 +42,7 @@ def load_config(config_path: Path) -> PipelineConfig:
         blur=config["blur"],
         orientation_enabled=config["orientation_enabled"],
         scaling_enabled=config["scaling_enabled"],
+        colormode_enabled=config["colormode_enabled"],
         adjustments_enabled=config["adjustments_enabled"],
         input_dir=Path(config["input_dir"]),
         output_dir=Path(config["output_dir"]),
@@ -180,7 +182,7 @@ def add_watermark(image: Image.Image, config: PipelineConfig) -> Image.Image:
         pos = (padding, padding)  # Default to top-left
 
     # Apply opacity
-    opacity = int(255 * watermark_config.get("opacity", 0.5))
+    opacity = int(255 * watermark_config.get("opacity"))
     watermark.putalpha(opacity)
 
     # Paste the watermark onto the transparent layer
@@ -254,8 +256,8 @@ def create_thumbnail(
     thumb.save(
         output_path,
         format="WEBP",
-        quality=thumbnail_config.get("quality", 70),
-        method=4,
+        quality=thumbnail_config.get("quality"),
+        method=thumbnail_config.get("method"),
     )
 
     return output_path
@@ -304,6 +306,9 @@ def create_blurred(
 
 def fix_colormode(image: Image.Image, config: PipelineConfig) -> Image.Image:
     """Convert image to specified color mode."""
+    if not config.colormode_enabled:
+        return image
+
     colormode = config.colormode
 
     if colormode == "RGB" or colormode == "RGBA":
@@ -323,10 +328,11 @@ def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]
     """Main function to process an image through the pipeline."""
     # Convert string paths to Path objects
     image_path = Path(image_path_str)
+    result = {"source": str(image_path), "source_size": image_path.stat().st_size}
 
     image = Image.open(image_path)
 
-    # Apply color mode and orientation fixes
+    # Apply basic fixes
     image = fix_colormode(image, config)
     image = fix_orientation(image, config)
 
@@ -340,11 +346,15 @@ def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]
     image = add_watermark(image, config)
     output_path = save_webp(image, image_path, config)
 
-    # Return paths to all generated files (converting Path objects to strings)
-    result = {"main": str(output_path)}
+    result["optimized"] = str(output_path)
+    result["optimized_size"] = output_path.stat().st_size
+
     if thumbnail_path:
         result["thumbnail"] = str(thumbnail_path)
+        result["thumbnail_size"] = thumbnail_path.stat().st_size
+
     if blurred_path:
         result["blurred"] = str(blurred_path)
+        result["blurred_size"] = blurred_path.stat().st_size
 
     return result

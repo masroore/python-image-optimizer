@@ -7,11 +7,12 @@ blur:
   enabled: true
   height: 800
   quality: 55
-  radius: 5
-  method: 4
+  radius: 7
+  method: 3
   path: "./storage/blurred"
   width: 800
 colormode: RGBA
+colormode_enabled: true
 input_dir: "./storage/source"
 scaling:
   width: 1920
@@ -23,6 +24,7 @@ thumbnail:
   enabled: true
   height: 240
   quality: 55
+  method: 3
   path: "./storage/thumbnails"
   width: 240
 watermark:
@@ -34,5 +36,5 @@ watermark:
   resize_percentage: 25
 webp:
   lossless: false
-  method: 6
+  method: 5
   quality: 65
