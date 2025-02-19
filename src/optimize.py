@@ -278,14 +278,28 @@ def create_blurred(
     if not blur_config.get("enabled", False):
         return None
 
-    # Get blur dimensions
-    width = blur_config.get("width", 800)
-    height = blur_config.get("height", 600)
+    # Get blur dimensions from config
+    target_width = blur_config.get("width", 800)
+    target_height = blur_config.get("height", 600)
 
     # Create a new image without EXIF data
     blurred = Image.new(image.mode, image.size)
     blurred.paste(image)
-    blurred = blurred.resize((width, height), Resampling.LANCZOS)
+
+    # Calculate dimensions that preserve aspect ratio within the target dimensions
+    original_width, original_height = blurred.size
+    width_ratio = target_width / original_width
+    height_ratio = target_height / original_height
+
+    # Use the smaller ratio to ensure the image fits within target dimensions
+    resize_ratio = min(width_ratio, height_ratio)
+
+    # Calculate new dimensions
+    new_width = int(original_width * resize_ratio)
+    new_height = int(original_height * resize_ratio)
+
+    # Resize the image with aspect ratio preserved
+    blurred = blurred.resize((new_width, new_height), Resampling.LANCZOS)
 
     # Apply Gaussian blur
     blur_radius = blur_config.get("radius", 10)
@@ -315,16 +329,16 @@ def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]
     # Load image
     image = Image.open(image_path)
 
+    # Additional pipelines
+    thumbnail_path = create_thumbnail(image, image_path, config)
+    blurred_path = create_blurred(image, image_path, config)
+
     # Main pipeline
     image = fix_orientation(image, config)
     image = scale_image(image, config)
     image = adjust_image(image, config)
     image = add_watermark(image, config)
     output_path = save_webp(image, image_path, config)
-
-    # Additional pipelines
-    thumbnail_path = create_thumbnail(image, image_path, config)
-    blurred_path = create_blurred(image, image_path, config)
 
     # Return paths to all generated files (converting Path objects to strings)
     result = {"main": str(output_path)}
