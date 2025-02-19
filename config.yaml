@@ -8,26 +8,26 @@ blur:
   height: 600
   quality: 70
   radius: 15
-  subfolder: ./storage/blurred
+  subfolder: "./storage/blurred"
   width: 800
-input_dir: ./storage/source
-max_dimensions: !!python/tuple
-- 1920
-- 1080
+input_dir: "./storage/source"
+scaling:
+  max_width: 1920
+  max_height: 1080
 orientation_enabled: true
-output_dir: ./storage/optimized
+output_dir: "./storage/optimized"
 scaling_enabled: true
 thumbnail:
   enabled: true
   height: 300
   quality: 70
-  subfolder: ./storage/thumbnails
+  subfolder: "./storage/thumbnails"
   width: 300
 watermark:
   enabled: true
   opacity: 0.6
   padding: 20
-  path: ./assets/watermark.png
+  path: "./assets/watermark.png"
   position: bottom-right
   resize_percentage: 15
 webp:
