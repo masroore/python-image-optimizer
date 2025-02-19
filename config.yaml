@@ -16,8 +16,8 @@ colormode: RGBA
 colormode_enabled: true
 input_dir: "./storage/source"
 scaling:
-  width: 1920
-  height: 1080
+  width: 2560
+  height: 1440
 orientation_enabled: true
 output_dir: "./storage/optimized"
 scaling_enabled: true
