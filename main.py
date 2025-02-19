@@ -1,4 +1,3 @@
-import yaml
 from pathlib import Path
 
 from PIL import Image
