@@ -182,8 +182,12 @@ def add_watermark(image: Image.Image, config: PipelineConfig) -> Image.Image:
         pos = (padding, padding)  # Default to top-left
 
     # Apply opacity
-    opacity = int(255 * watermark_config.get("opacity"))
-    watermark.putalpha(opacity)
+    target_opacity = watermark_config.get("opacity")
+    if target_opacity < 1.0:
+        # Adjust watermark opacity
+        alpha = watermark.split()[3]
+        alpha = alpha.point(lambda p: p * target_opacity)
+        watermark.putalpha(alpha)
 
     # Paste the watermark onto the transparent layer
     transparent.paste(watermark, pos, watermark)
