@@ -14,8 +14,8 @@ blur:
 colormode: RGBA
 input_dir: "./storage/source"
 scaling:
-  max_width: 1920
-  max_height: 1080
+  width: 1920
+  height: 1080
 orientation_enabled: true
 output_dir: "./storage/optimized"
 scaling_enabled: true

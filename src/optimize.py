@@ -13,7 +13,7 @@ class PipelineConfig:
     colormode: str
     scaling_enabled: bool
     adjustments_enabled: bool
-    max_dimensions: Tuple[int, int]
+    scaling: Tuple[int, int]
     adjustments: Dict[str, float]
     watermark: Dict[str, Any]
     webp_settings: Dict[str, Any]
@@ -29,9 +29,9 @@ def load_config(config_path: Path) -> PipelineConfig:
         config = yaml.safe_load(f)
 
     return PipelineConfig(
-        max_dimensions=(
-            config["scaling"]["max_width"],
-            config["scaling"]["max_height"],
+        scaling=(
+            config["scaling"]["width"],
+            config["scaling"]["height"],
         ),
         adjustments=config["adjustments"],
         watermark=config["watermark"],
@@ -104,7 +104,7 @@ def scale_image(image: Image.Image, config: PipelineConfig) -> Image.Image:
     if not config.scaling_enabled:
         return image
 
-    max_width, max_height = config.max_dimensions
+    max_width, max_height = config.scaling
     width, height = image.size
 
     # Check if scaling is needed
