@@ -149,7 +149,7 @@ def add_watermark(image: Image.Image, config: PipelineConfig) -> Image.Image:
 
     # Load watermark image
     watermark_path = Path(watermark_config["path"])
-    if not Path.exists(watermark_path):
+    if not watermark_path.exists():
         return image
 
     watermark = Image.open(watermark_path).convert("RGBA")
@@ -251,7 +251,7 @@ def create_thumbnail(
     thumb.thumbnail((width, height), Resampling.LANCZOS)
 
     # Create thumbnail directory if it doesn't exist
-    thumbnail_dir = config.output_dir / thumbnail_config.get("subfolder", "thumbnails")
+    thumbnail_dir = Path(thumbnail_config.get("path"))
     thumbnail_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate output path
@@ -285,14 +285,14 @@ def create_blurred(
     # Create a new image without EXIF data
     blurred = Image.new(image.mode, image.size)
     blurred.paste(image)
-    blurred = blurred.resize((width, height), Image.LANCZOS)
+    blurred = blurred.resize((width, height), Resampling.LANCZOS)
 
     # Apply Gaussian blur
     blur_radius = blur_config.get("radius", 10)
     blurred = blurred.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
     # Create blur directory if it doesn't exist
-    blur_dir = config.output_dir / blur_config.get("subfolder", "blurred")
+    blur_dir = Path(blur_config.get("path"))
     blur_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate output path

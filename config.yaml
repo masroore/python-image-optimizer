@@ -8,7 +8,7 @@ blur:
   height: 600
   quality: 70
   radius: 15
-  subfolder: "./storage/blurred"
+  path: "./storage/blurred"
   width: 800
 input_dir: "./storage/source"
 scaling:
@@ -19,10 +19,10 @@ output_dir: "./storage/optimized"
 scaling_enabled: true
 thumbnail:
   enabled: true
-  height: 300
-  quality: 70
-  subfolder: "./storage/thumbnails"
-  width: 300
+  height: 240
+  quality: 55
+  path: "./storage/thumbnails"
+  width: 240
 watermark:
   enabled: true
   opacity: 0.6
@@ -32,5 +32,5 @@ watermark:
   resize_percentage: 15
 webp:
   lossless: false
-  method: 4
-  quality: 80
+  method: 6
+  quality: 65
