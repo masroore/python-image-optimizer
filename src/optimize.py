@@ -107,20 +107,10 @@ def scale_image(image: Image.Image, config: PipelineConfig) -> Image.Image:
     max_width, max_height = config.scaling
     width, height = image.size
 
-    # Check if scaling is needed
-    if width <= max_width and height <= max_height:
-        return image
+    if width > max_width or height > max_height:
+        image.thumbnail((max_width, max_height), Resampling.LANCZOS)
 
-    # Calculate scaling factor
-    scale_width = max_width / width
-    scale_height = max_height / height
-    scale_factor = min(scale_width, scale_height)
-
-    # Calculate new dimensions
-    new_width = int(width * scale_factor)
-    new_height = int(height * scale_factor)
-
-    return image.resize((new_width, new_height), Resampling.LANCZOS)
+    return image
 
 
 def adjust_image(image: Image.Image, config: PipelineConfig) -> Image.Image:
