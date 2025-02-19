@@ -4,6 +4,8 @@ from PIL import Image
 
 from src.optimize import process_image, load_config
 
+ALLOWED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif"]
+
 if __name__ == "__main__":
     config_path = Path("config.yaml")
     config = load_config(config_path)
@@ -16,9 +18,6 @@ if __name__ == "__main__":
 
     if config.input_dir.exists():
         for file in config.input_dir.glob("*"):
-            if file.is_file():
+            if file.is_file() and file.suffix.lower() in ALLOWED_EXTENSIONS:
                 result = process_image(file, config)
                 print(f"Processed files: {result}")
-
-    result = process_image("input.jpg", config)
-    print(f"Processed files: {result}")

@@ -40,7 +40,7 @@ def load_config(config_path: Path) -> PipelineConfig:
         orientation_enabled=config["orientation_enabled"],
         scaling_enabled=config["scaling_enabled"],
         adjustments_enabled=config["adjustments_enabled"],
-        input_dir=config["input_dir"],
+        input_dir=Path(config["input_dir"]),
         output_dir=Path(config["output_dir"]),
     )
 
@@ -273,10 +273,10 @@ def create_blurred(
     image: Image.Image, image_path: Path, config: PipelineConfig
 ) -> Optional[Path]:
     """Create blurred version of the image with EXIF data stripped."""
-    if not config.blur_enabled:
-        return None
-
     blur_config = config.blur
+
+    if not blur_config.get("enabled", False):
+        return None
 
     # Get blur dimensions
     width = blur_config.get("width", 800)
@@ -316,7 +316,7 @@ def process_image(image_path_str: str, config: PipelineConfig) -> Dict[str, str]
     image = Image.open(image_path)
 
     # Main pipeline
-    image = fix_orientation(image)
+    image = fix_orientation(image, config)
     image = scale_image(image, config)
     image = adjust_image(image, config)
     image = add_watermark(image, config)
