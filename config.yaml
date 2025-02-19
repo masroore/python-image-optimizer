@@ -10,10 +10,10 @@ blur:
   height: 600
   quality: 70
   radius: 15
-  subfolder: ./blurred
+  subfolder: ./storage/blurred
   width: 800
-input_dir: ./source
-output_dir: ./optimized
+input_dir: ./storage/source
+output_dir: ./storage/optimized
 scaling:
   max_height: 1080
   max_width: 1920
@@ -21,7 +21,7 @@ thumbnail:
   enabled: true
   height: 300
   quality: 70
-  subfolder: ./thumbnails
+  subfolder: ./storage/thumbnails
   width: 300
 watermark:
   enabled: true

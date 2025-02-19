@@ -13,7 +13,7 @@ if __name__ == "__main__":
     if not watermark_path.exists():
         # Simple red square watermark if not existing
         watermark_img = Image.new("RGBA", (64, 64), color=(255, 0, 0, 128))
-        watermark_img.save("watermark.png")
+        watermark_img.save(watermark_path)
 
     if config.input_dir.exists():
         for file in config.input_dir.glob("*"):
